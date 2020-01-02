@@ -5,7 +5,7 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 from tensorflow.contrib import layers
-import matlab.engine
+#import matlab.engine
 import scipy.io as sio
 
 def next_batch(data, _index_in_epoch ,batch_size , _epochs_completed):
@@ -29,7 +29,7 @@ def next_batch(data, _index_in_epoch ,batch_size , _epochs_completed):
 
 class ConvAE(object):
     def __init__(self, n_input, kernel_size,n_hidden, learning_rate = 1e-3, batch_size = 256,\
-        reg = None, denoise = False ,model_path = None,restore_path = None, logs_path = '/home/pan/workspace-eclipse/deep-subspace-clustering/models_face'):    
+        reg = None, denoise = False ,model_path = None,restore_path = None, logs_path = 'DSC/pretrain-model-EYaleB/logs_pre'):    
     #n_hidden is a arrary contains the number of neurals on every layer
         self.n_input = n_input
         self.n_hidden = n_hidden
@@ -210,7 +210,7 @@ def test_face(Img, CAE, n_input):
 
 if __name__ == '__main__':
     
-    data = sio.loadmat('/home/pan/workspace-eclipse/deep-subspace-clustering/face_datasets/YaleBCrop025.mat')
+    data = sio.loadmat('DSC/Data/YaleBCrop025.mat')
     img = data['Y']
     I = []
     Label = []
@@ -230,7 +230,7 @@ if __name__ == '__main__':
     n_hidden = [10,20,30]
     batch_size = Img.shape[0]    
     lr = 1.0e-3 # learning rate
-    model_path = '/home/pan/workspace-eclipse/deep-subspace-clustering/models_face/model-102030-48x42-yaleb.ckpt'
+    model_path = 'DSC/pretrain-model-EYaleB/model-102030-48x42-yaleb.ckpt'
     CAE = ConvAE(n_input = n_input, n_hidden = n_hidden, learning_rate = lr, kernel_size = kernel_size, 
                  batch_size = batch_size, model_path = model_path, restore_path = model_path)
     #test_face(Img, CAE, n_input)

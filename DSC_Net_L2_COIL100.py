@@ -17,7 +17,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 
 class ConvAE(object):
 	def __init__(self, n_input, kernel_size, n_hidden, reg_const1 = 1.0, reg_const2 = 1.0, reg = None, batch_size = 256,\
-		denoise = False, model_path = None, logs_path = '/home/pan/workspace-eclipse/deep-subspace-clustering/COIL20CodeModel/pretrain/logs'):	
+		denoise = False, model_path = None, logs_path = 'DSC/pretrain-model-COIL100/logs'):
 	#n_hidden is a arrary contains the number of neurals on every layer
 		self.n_input = n_input
 		self.n_hidden = n_hidden
@@ -183,7 +183,7 @@ def best_map(L1,L2):
 			ind_cla2 = ind_cla2.astype(float)
 			G[i,j] = np.sum(ind_cla2 * ind_cla1)
 	m = Munkres()
-	index = m.compute(-G.T)
+	index = m.compute(-1*G.T)
 	index = np.array(index)
 	c = index[:,1]
 	newL2 = np.zeros(L2.shape)
@@ -242,7 +242,7 @@ def err_rate(gt_s, s):
 
 # main function starts here
 
-data = sio.loadmat('COIL100.mat')
+data = sio.loadmat('DSC/Data/COIL100.mat')
 Img = data['fea']
 Label = data['gnd']
 Img = np.reshape(Img,(Img.shape[0],32,32,1))
@@ -252,9 +252,9 @@ kernel_size = [5]
 n_hidden = [50]
 batch_size = 7200
 
-model_path = '/home/pan/workspace-eclipse/deep-subspace-clustering/COIL100CodeModel/COIL100/pretrain/model50.ckpt'
-ft_path = '/home/pan/workspace-eclipse/deep-subspace-clustering/COIL100CodeModel/COIL100/pretrain/model50.ckpt'
-logs_path = '/home/pan/workspace-eclipse/deep-subspace-clustering/COIL100CodeModel/COIL100/ft/logs'
+model_path = 'DSC/pretrain-model-COIL100/model50.ckpt'
+ft_path = 'DSC/pretrain-model-COIL100/model50.ckpt'
+logs_path = 'DSC/pretrain-model-COIL100/logs'
 
 _index_in_epoch = 0
 _epochs= 0

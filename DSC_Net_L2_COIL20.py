@@ -17,7 +17,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 
 class ConvAE(object):
 	def __init__(self, n_input, kernel_size, n_hidden, reg_const1 = 1.0, reg_const2 = 1.0, reg = None, batch_size = 256,\
-		denoise = False, model_path = None, logs_path = '/home/pan/workspace-eclipse/deep-subspace-clustering/COIL20CodeModel/new/pretrain/logs'):	
+		denoise = False, model_path = None, logs_path = 'DSC/COIL20CodeModel/logs'):	
 	#n_hidden is a arrary contains the number of neurals on every layer
 		self.n_input = n_input
 		self.n_hidden = n_hidden
@@ -148,7 +148,7 @@ def best_map(L1,L2):
 			ind_cla2 = ind_cla2.astype(float)
 			G[i,j] = np.sum(ind_cla2 * ind_cla1)
 	m = Munkres()
-	index = m.compute(-G.T)
+	index = m.compute(-1*G.T)
 	index = np.array(index)
 	c = index[:,1]
 	newL2 = np.zeros(L2.shape)
@@ -215,9 +215,9 @@ n_input = [32,32]
 kernel_size = [3]
 n_hidden = [15]
 batch_size = 20*72
-model_path = '/home/pan/workspace-eclipse/deep-subspace-clustering/COIL20CodeModel/new/pretrain/model.ckpt'
-ft_path = '/home/pan/workspace-eclipse/deep-subspace-clustering/COIL20CodeModel/new/pretrain/model.ckpt'
-logs_path = '/home/pan/workspace-eclipse/deep-subspace-clustering/COIL20CodeModel/new/pretrain/logs'
+model_path = 'DSC/COIL20CodeModel/model.ckpt'
+ft_path = 'DSC/COIL20CodeModel/model.ckpt'
+logs_path = 'DSC/COIL20CodeModel/logs'
 
 num_class = 20 #how many class we sample
 num_sa = 72

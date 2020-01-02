@@ -16,7 +16,7 @@ from munkres import Munkres
 class ConvAE(object):
     def __init__(self, n_input, kernel_size, n_hidden, reg_constant1 = 1.0, re_constant2 = 1.0, batch_size = 200, reg = None, \
                 denoise = False, model_path = None, restore_path = None, \
-                logs_path = '/home/pan/workspace-eclipse/deep-subspace-clustering/models_face/logs'):
+                logs_path = 'DSC/pretrain-model-ORL/logs'):
         self.n_input = n_input
         self.kernel_size = kernel_size
         self.n_hidden = n_hidden
@@ -186,7 +186,7 @@ def best_map(L1,L2):
             ind_cla2 = ind_cla2.astype(float)
             G[i,j] = np.sum(ind_cla2 * ind_cla1)
     m = Munkres()
-    index = m.compute(-G.T)
+    index = m.compute(-1*G.T)
     index = np.array(index)
     c = index[:,1]
     newL2 = np.zeros(L2.shape)
@@ -246,7 +246,7 @@ def err_rate(gt_s, s):
 def test_face(Img, Label, CAE, num_class):       
     
     alpha = 0.2
-    print alpha
+    print (alpha)
     
     acc_= []
     for i in range(0,41-num_class): 
@@ -268,12 +268,12 @@ def test_face(Img, Label, CAE, num_class):
             epoch = epoch + 1           
             cost, Coef = CAE.partial_fit(face_10_subjs, lr)#                                  
             if epoch % display_step == 0:
-                print "epoch: %.1d" % epoch, "cost: %.8f" % (cost/float(batch_size))                
+                print ("epoch: %.1d" % epoch, "cost: %.8f" % (cost/float(batch_size)))          
                 Coef = thrC(Coef,alpha)                                                       
                 y_x, _ = post_proC(Coef, label_10_subjs.max(), 3,1)                  
                 missrate_x = err_rate(label_10_subjs, y_x)                
                 acc_x = 1 - missrate_x 
-                print "experiment: %d" % i, "our accuracy: %.4f" % acc_x
+                print ("experiment: %d" % i, "our accuracy: %.4f" % acc_x)
         acc_.append(acc_x)    
     
     acc_ = np.array(acc_)
@@ -292,7 +292,7 @@ def test_face(Img, Label, CAE, num_class):
 if __name__ == '__main__':
     
     # load face images and labels
-    data = sio.loadmat('/home/pan/workspace-eclipse/deep-subspace-clustering/face_datasets/ORL_32x32.mat')
+    data = sio.loadmat('DSC/Data/ORL_32x32.mat')
     Img = data['fea']
     Label = data['gnd']     
     
@@ -315,9 +315,9 @@ if __name__ == '__main__':
         reg1 = 1.0
         reg2 = 0.2
          
-        model_path = '/home/pan/workspace-eclipse/deep-subspace-clustering/models_face/model-335-32x32-orl.ckpt' 
-        restore_path = '/home/pan/workspace-eclipse/deep-subspace-clustering/models_face/model-335-32x32-orl.ckpt' 
-        logs_path = '/home/pan/workspace-eclipse/deep-subspace-clustering/conv_3_l1_yaleb/ft/logs' 
+        model_path = 'DSC/pretrain-model-ORL/model-335-32x32-orl.ckpt' 
+        restore_path = 'DSC/pretrain-model-ORL/model-335-32x32-orl.ckpt' 
+        logs_path = 'DSC/pretrain-model-ORL/logs' 
         tf.reset_default_graph()
         CAE = ConvAE(n_input=n_input, n_hidden=n_hidden, reg_constant1=reg1, re_constant2=reg2, \
                      kernel_size=kernel_size, batch_size=batch_size, model_path=model_path, restore_path=restore_path, logs_path=logs_path)
@@ -330,8 +330,8 @@ if __name__ == '__main__':
     iter_loop = 0
     while iter_loop < len(all_subjects):
         num_class = all_subjects[iter_loop]
-        print '%d subjects:' % num_class
-        print 'Mean: %.4f%%' % (avg[iter_loop]*100), 'Median: %.4f%%' % (med[iter_loop]*100) 
+        print ('%d subjects:' % num_class)
+        print ('Mean: %.4f%%' % (avg[iter_loop]*100), 'Median: %.4f%%' % (med[iter_loop]*100)) 
         iter_loop = iter_loop + 1      
     
     
