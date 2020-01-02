@@ -14,7 +14,7 @@ import time
 class ConvAE(object):
     def __init__(self, n_input, kernel_size, n_hidden, reg_constant1 = 1.0, re_constant2 = 1.0, batch_size = 200, reg = None, \
                 denoise = False, model_path = None, restore_path = None, \
-                logs_path = 'pretrain-model-EYaleB/logs'):
+                logs_path = 'DSC/pretrain-model-EYaleB/logs'):
         self.n_input = n_input
         self.kernel_size = kernel_size
         self.n_hidden = n_hidden
@@ -297,13 +297,13 @@ if __name__ == '__main__':
     Label = []
     for i in range(img.shape[2]):
         for j in range(img.shape[1]):
-            temp = np.reshape(img[:,j,i],[42,48])
+            temp = np.reshape(img[:, j, i],[42, 48])
             Label.append(i)
             I.append(temp)
     I = np.array(I)
     Label = np.array(Label[:])
-    Img = np.transpose(I,[0,2,1])
-    Img = np.expand_dims(Img[:],3)    
+    Img = np.transpose(I,[0, 2, 1])
+    Img = np.expand_dims(Img[:], 3)
     
     # face image clustering
     n_input = [48,42]
@@ -322,9 +322,9 @@ if __name__ == '__main__':
         batch_size = num_class * 64
         reg1 = 1.0
         reg2 = 1.0 * 10 ** (num_class / 10.0 - 3.0)           
-        model_path = 'pretrain-model-EYaleB/model-102030-48x42-yaleb.ckpt' 
-        restore_path = 'pretrain-model-EYaleB/model-102030-48x42-yaleb.ckpt' 
-        logs_path = 'pretrain-model-EYaleB/logs' 
+        model_path = 'DSC/pretrain-model-EYaleB/model-102030-48x42-yaleb.ckpt' 
+        restore_path = 'DSC/pretrain-model-EYaleB/model-102030-48x42-yaleb.ckpt' 
+        logs_path = 'DSC/pretrain-model-EYaleB/logs' 
         tf.reset_default_graph()
         CAE = ConvAE(n_input=n_input, n_hidden=n_hidden, reg_constant1=reg1, re_constant2=reg2, \
                      kernel_size=kernel_size, batch_size=batch_size, model_path=model_path, restore_path=restore_path, logs_path=logs_path)
