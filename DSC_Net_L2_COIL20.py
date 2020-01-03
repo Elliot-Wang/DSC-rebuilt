@@ -206,7 +206,7 @@ def err_rate(gt_s, s):
 	missrate = err_x.astype(float) / (gt_s.shape[0])
 	return missrate  
 
-data = sio.loadmat('COIL20.mat')
+data = sio.loadmat('DSC/Data/COIL20.mat')
 Img = data['fea']
 Label = data['gnd']
 Img = np.reshape(Img,(Img.shape[0],32,32,1))

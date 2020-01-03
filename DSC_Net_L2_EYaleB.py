@@ -25,8 +25,8 @@ class ConvAE(object):
         self.iter = 0
         
         #input required to be fed
-        self.x = tf.placeholder(tf.float32, [None, n_input[0], n_input[1], 1], name='input image')
-        self.learning_rate = tf.placeholder(tf.float32, [], name='learing rate')
+        self.x = tf.placeholder(tf.float32, [None, n_input[0], n_input[1], 1], name='input_image')
+        self.learning_rate = tf.placeholder(tf.float32, [], name='learing_rate')
         # initialize weights
         weights = self._initialize_weights()
         # encoder
@@ -44,19 +44,19 @@ class ConvAE(object):
         self.z = z
         Coef = weights['Coef']
         self.Coef = Coef
-        z_c = tf.matmul(Coef, z, name='convert z')
-        latent_c = tf.reshape(z_c, tf.shape(latent), name='represent reconstruct')
+        z_c = tf.matmul(Coef, z, name='convert_z')
+        latent_c = tf.reshape(z_c, tf.shape(latent), name='represent_reconstruct')
      
         # decoder
         self.x_r = self.decoder(latent_c, weights, shape)
         # l_2 reconstruction loss 
-        self.reconst_cost = 0.5 * tf.reduce_sum(tf.pow(tf.subtract(self.x_r, self.x), 2.0), name='2 * reconst cost')
+        self.reconst_cost = 0.5 * tf.reduce_sum(tf.pow(tf.subtract(self.x_r, self.x), 2.0), name='2_reconst_cost')
         tf.summary.scalar("recons_loss", self.reconst_cost)
                 
-        self.reg_losses = tf.reduce_sum(tf.pow(self.Coef,2.0), name='regulation losses')
+        self.reg_losses = tf.reduce_sum(tf.pow(self.Coef,2.0), name='regulation_losses')
         tf.summary.scalar("reg_loss", reg_constant1 * self.reg_losses )
         
-        self.selfexpress_losses = 0.5 * tf.reduce_sum(tf.pow(tf.subtract(z_c, z), 2.0), name='2 * self-represent losses')
+        self.selfexpress_losses = 0.5 * tf.reduce_sum(tf.pow(tf.subtract(z_c, z), 2.0), name='2_self_represent_losses')
         tf.summary.scalar("selfexpress_loss", re_constant2 * self.selfexpress_losses )
         
         self.loss = self.reconst_cost + reg_constant1 * self.reg_losses + re_constant2 * self.selfexpress_losses  
@@ -85,7 +85,7 @@ class ConvAE(object):
             initializer=layers.xavier_initializer_conv2d(),regularizer = self.reg)
         all_weights['enc_b2'] = tf.Variable(tf.zeros([self.n_hidden[2]], dtype = tf.float32))        
         
-        all_weights['Coef']   = tf.Variable(1.0e-4 * tf.ones([self.batch_size, self.batch_size],tf.float32), name = 'Coef')
+        all_weights['Coef'] = tf.Variable(1.0e-4 * tf.ones([self.batch_size, self.batch_size], tf.float32), name = 'Coef')
         
         all_weights['dec_w0'] = tf.get_variable("dec_w0", shape=[self.kernel_size[2], self.kernel_size[2], self.n_hidden[1],self.n_hidden[2]],
             initializer=layers.xavier_initializer_conv2d(),regularizer = self.reg)
@@ -106,13 +106,13 @@ class ConvAE(object):
         shapes = []
         # Encoder Hidden layer with relu activation #1
         shapes.append(x.get_shape().as_list())
-        layer1 = tf.nn.bias_add(tf.nn.conv2d(x, weights['enc_w0'], strides=[1,2,2,1],padding='SAME'), weights['enc_b0'], name='encoder layer1')
+        layer1 = tf.nn.bias_add(tf.nn.conv2d(x, weights['enc_w0'], strides=[1,2,2,1],padding='SAME'), weights['enc_b0'], name='encoder_layer1')
         layer1 = tf.nn.relu(layer1)
         shapes.append(layer1.get_shape().as_list())
-        layer2 = tf.nn.bias_add(tf.nn.conv2d(layer1, weights['enc_w1'], strides=[1,2,2,1],padding='SAME'),weights['enc_b1'], name='encoder layer2')
+        layer2 = tf.nn.bias_add(tf.nn.conv2d(layer1, weights['enc_w1'], strides=[1,2,2,1],padding='SAME'),weights['enc_b1'], name='encoder_layer2')
         layer2 = tf.nn.relu(layer2)
         shapes.append(layer2.get_shape().as_list())
-        layer3 = tf.nn.bias_add(tf.nn.conv2d(layer2, weights['enc_w2'], strides=[1,2,2,1],padding='SAME'),weights['enc_b2'], name='encoder layer3')
+        layer3 = tf.nn.bias_add(tf.nn.conv2d(layer2, weights['enc_w2'], strides=[1,2,2,1],padding='SAME'),weights['enc_b2'], name='encoder_layer3')
         layer3 = tf.nn.relu(layer3)
         return  layer3, shapes
     
@@ -121,15 +121,15 @@ class ConvAE(object):
         # Encoder Hidden layer with relu activation #1
         shape_de1 = shapes[2]
         layer1 = tf.add(tf.nn.conv2d_transpose(z, weights['dec_w0'], tf.stack([tf.shape(self.x)[0], shape_de1[1], shape_de1[2], shape_de1[3]]),\
-         strides=[1,2,2,1], padding='SAME'), weights['dec_b0'], name='decoder layer1')
+         strides=[1,2,2,1], padding='SAME'), weights['dec_b0'], name='decoder_layer1')
         layer1 = tf.nn.relu(layer1)
         shape_de2 = shapes[1]
         layer2 = tf.add(tf.nn.conv2d_transpose(layer1, weights['dec_w1'], tf.stack([tf.shape(self.x)[0], shape_de2[1], shape_de2[2], shape_de2[3]]),\
-         strides=[1,2,2,1], padding='SAME'), weights['dec_b1'], name='decoder layer2')
+         strides=[1,2,2,1], padding='SAME'), weights['dec_b1'], name='decoder_layer2')
         layer2 = tf.nn.relu(layer2)
         shape_de3= shapes[0]
         layer3 = tf.add(tf.nn.conv2d_transpose(layer2, weights['dec_w2'], tf.stack([tf.shape(self.x)[0], shape_de3[1], shape_de3[2], shape_de3[3]]),\
-         strides=[1,2,2,1], padding='SAME'), weights['dec_b2'], name='decoder layer3')
+         strides=[1,2,2,1], padding='SAME'), weights['dec_b2'], name='decoder_layer3')
         layer3 = tf.nn.relu(layer3)
         return layer3
     
@@ -189,12 +189,11 @@ def best_map(L1, L2):
 
 def thrC(C, rho):
     if rho < 1:
-        N = C.shape[1]
-        Cp = np.zeros((N,N))
+        Cp = np.zeros(C.shape)
         S = np.abs(np.sort(-1*np.abs(C), axis=0))
         Ind = np.argsort(-1*np.abs(C), axis=0)
 
-        for i in range(N):
+        for i in range(C.shape[0]):
             cL1 = np.sum(S[:,i]).astype(float)
             csum = 0
             t = 0
@@ -251,18 +250,22 @@ def build_laplacian(C):
     L = W.dot(C)    
     return L
         
+# train with given class numbers
+# the more class numbers, the lower accuracy
 def test_face(Img, Label, CAE, num_class):       
     # why set alpha
     alpha = max(0.4 - (num_class-1)/10 * 0.1, 0.1)
-    print(alpha)
+    print('alhpa is ', alpha)
 
     acc_= []
     for i in range(39 - num_class): 
-        face_10_subjs = np.array(Img[64*i:64*(i+num_class),:])
+        face_10_subjs = np.array(Img[64 * i: 64 * (i + num_class), :])
         face_10_subjs = face_10_subjs.astype(float)
+        
+        label_10_subjs = np.array(Label[64 * i: 64 * (i + num_class)]) 
         # label value normolization
-        label_10_subjs = np.array(Label[64*i:64*(i+num_class)]) 
-        label_10_subjs = label_10_subjs - label_10_subjs.min() + 1
+        label_10_subjs = label_10_subjs - label_10_subjs.min() + 1 
+        # need squeeze ??
         label_10_subjs = np.squeeze(label_10_subjs)
 
         CAE.initlization()
@@ -278,6 +281,7 @@ def test_face(Img, Label, CAE, num_class):
             # display cost and accuracy every certain times                  
             if epoch % display_step == 0:
                 print( "epoch: %.1d" % epoch, "cost: %.8f" % (cost/float(CAE.batch_size)))
+                # 可以研究这里的cost 和 accuracy的关系！
                 Coef = thrC(Coef,alpha)
                 y_x, _ = post_proC(Coef, label_10_subjs.max(), 10, 3.5)
                 acc_x = 1 - err_rate(label_10_subjs, y_x)
@@ -285,29 +289,31 @@ def test_face(Img, Label, CAE, num_class):
         acc_.append(acc_x)    
     
     acc_ = np.array(acc_)
-    m = np.mean(acc_)
-    me = np.median(acc_)
+    mean_acc = 1 - np.mean(acc_)
+    median_acc = 1 - np.median(acc_)
     print("%d subjects:" % num_class)    
-    print("Mean: %.4f%%" % ((1-m)*100))    
-    print("Median: %.4f%%" % ((1-me)*100))
+    print("Mean: %.4f%%" % (mean_acc * 100))
+    print("Median: %.4f%%" % (median_acc * 100))
     print(acc_) 
     
-    return (1-m), (1-me)  
+    return mean_acc, median_acc
 
 # load face images and labels
 def get_data(addr):
     data = sio.loadmat(addr)
+    # img = [2016, 64, 38]
+    # img = [48*42, 64, 38]
     img = data['Y']
     I = []
     Label = []
-    for i in range(img.shape[2]):
-        for j in range(img.shape[1]):
-            temp = np.reshape(img[:, j, i],[42, 48])
-            Label.append(i)
+    for i in range(img.shape[1]):
+        for j in range(img.shape[2]):
+            temp = np.reshape(img[:, i, j],[42, 48])
+            Label.append(j)
             I.append(temp)
     I = np.array(I)
     Label = np.array(Label[:])
-    Img = np.transpose(I,[0, 2, 1])
+    Img = np.transpose(I, [0, 2, 1])
     Img = np.expand_dims(Img[:], 3)
     return Img, Label
     
@@ -316,9 +322,13 @@ if __name__ == '__main__':
     Img, Label = get_data('DSC/Data/YaleBCrop025.mat')
     
     # face image clustering
-    n_input = [48,42]
-    kernel_size = [5,3,3]
-    n_hidden = [10,20,30]
+    n_input = [48, 42]
+    kernel_size = [5, 3, 3]
+    n_hidden = [10, 20, 30]
+    net_strc = {}
+    net_strc['input'] = n_input
+    net_strc['kernel'] = kernel_size
+    net_strc['hidden'] = n_hidden
     
     all_subjects = [10, 15, 20, 25, 30, 35, 38]
     
@@ -329,9 +339,8 @@ if __name__ == '__main__':
     restore_path = 'DSC/pretrain-model-EYaleB/model-102030-48x42-yaleb.ckpt' 
     logs_path = 'DSC/pretrain-model-EYaleB/logs' 
     # train loop
-    for iter_loop in range(len(all_subjects)):
-        tic = time.time()
-        num_class = all_subjects[iter_loop]
+    for i in range(len(all_subjects)):
+        num_class = all_subjects[i]
         batch_size = num_class * 64
         reg1 = 1.0
         reg2 = 1.0 * 10 ** (num_class / 10.0 - 3.0)           
@@ -344,13 +353,11 @@ if __name__ == '__main__':
         avg.append(avg_i)
         med.append(med_i)
 
-        toc = time.time()
-        print("excute time:"+str((toc-tic))+"s")
-    # performance index print
-    for iter_loop in range(len(all_subjects)):
-        num_class = all_subjects[iter_loop]
+    # performance index printing
+    for i in range(len(all_subjects)):
+        num_class = all_subjects[i]
         print ('%d subjects:' % num_class)
-        print ('Mean: %.4f%%' % (avg[iter_loop]*100), 'Median: %.4f%%' % (med[iter_loop]*100))  
+        print ('Mean: %.4f%%' % (avg[i]*100), 'Median: %.4f%%' % (med[i]*100))  
     
     
     
